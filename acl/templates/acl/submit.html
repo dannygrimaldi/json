@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mi Tabla</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+</head>
+<body>
+  <table id="tabla" class="display">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Comercio</th>
+        <th>Monto</th>
+        <th>Seleccionar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2023-06-01</td>
+        <td>Comercio 1</td>
+        <td>$100.00</td>
+        <td><input type="checkbox" value="1"></td>
+      </tr>
+      <tr>
+        <td>2023-06-02</td>
+        <td>Comercio 2</td>
+        <td>$200.00</td>
+        <td><input type="checkbox" value="2"></td>
+      </tr>
+      <tr>
+        <td>2023-06-03</td>
+        <td>Comercio 3</td>
+        <td>$300.00</td>
+        <td><input type="checkbox" value="3"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button id="guardarBtn">Guardar Datos Seleccionados</button>
+
+  <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src=//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var tabla = $('#tabla').DataTable();
+      console.log("Hola, esto se imprimirá en la consola");
+      
+      table.rows().every(function () {
+  if ($(this.node()).find('input[type="checkbox"]').prop('checked')) {
+    this.show();
+  } else {
+    this.hide();
+  }
+}).draw();
+
+table.rows({ search: 'applied' }).every(function (rowIdx) {   
+  $(this.node()).removeClass('odd even').addClass(rowIdx % 2 === 0 ? 'even' : 'odd');
+});
+
+
+
+      $('#guardarBtn').on('click', function() {
+      datosSeleccionados = [];
+
+      tabla.rows(function(idx, data, node) {
+        return $(node).find('input[type="checkbox"]').prop('checked');
+      }).nodes().to$().each(function(rowNode) {
+        var rowData = tabla.row(rowNode).data();
+        var fecha = rowData[0];
+        var comercio = rowData[1];
+        var monto = rowData[2].replace('$', '');
+v
+        var item = {
+          'fecha': fecha,
+          'comercio': comercio,
+          'monto': monto
+        };
+
+        datosSeleccionados.push(item);
+      });
+  
+        // Convertir el array de datos seleccionados a formato JSON
+        var datosJson = JSON.stringify(datosSeleccionados);
+        console.log(datosJson);
+
+        // Enviar los datos seleccionados a través de una petición AJAX
+        $.ajax({
+          type: 'POST',
+          url: '/guardar-datos-seleccionados/',
+          dataType: 'json',
+          contentType: 'application/json',
+          data: datosJson,
+          success: function(response) {
+            console.log(response.message);
+            // Hacer algo con la respuesta, como mostrar un mensaje de éxito
+  
+            // Redirigir a la siguiente vista
+            window.location.href = '/nueva-vista/';
+          },
+          error: function(xhr, status, error) {
+            console.log(error);
+            // Manejar el error de la petición
+          }
+        });
+      });
+    });
+  </script>
+  
+</body>
+</html>
