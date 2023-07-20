@@ -1,0 +1,29 @@
+<!-- Estilos CSS -->
+<style>
+    /* ... Tus estilos CSS actuales ... */
+
+    /* Estilos para el pop-up */
+    .pop-up {
+        /* ... Estilos del pop-up actuales ... */
+    }
+
+    /* Estilos para la transición de entrada y salida del pop-up */
+    .fade-enter,
+    .fade-leave-to {
+        opacity: 0;
+
+        .pop-up-inner {
+            opacity: 0;
+            transform: translateY(-32px);
+        }
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 250ms ease-in-out;
+    }
+
+    .fade-leave-active {
+        transition-delay: 250ms;
+    }
+</style>
