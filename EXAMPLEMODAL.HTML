@@ -1,0 +1,22 @@
+<!-- HTML de la vista principal -->
+<div id="app">
+    <!-- Pop-up con el formulario -->
+    <transition name="fade">
+        <pop-up v-show="popUp" @close="togglePopUp()">
+            <!-- Aquí incluye el formulario que ya tienes en la vista principal -->
+            <form id="formularioOriginal" method="post">
+                <!-- Campos y contenido del formulario -->
+                <!-- ... -->
+                <button type="submit">Enviar</button>
+            </form>
+        </pop-up>
+    </transition>
+
+    <h1>
+        Contenido de la vista principal
+    </h1>
+    <!-- Agrega un botón o enlace que abrirá el pop-up -->
+    <button class="btn" @click="togglePopUp()">
+        Mostrar pop-up
+    </button>
+</div>
