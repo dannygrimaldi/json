@@ -1,182 +1,22 @@
 
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap');
-
-/*
-    ** All elements border-box
-*/
-*,
-*:before,
-*::after {
-  box-sizing: border-box;
-}
-
-/*
-    ** Root element font size
-    ** No default margins and paddings
-*/
-html,
-body {
-  font-size: 16px;
-  margin: 0;
-  padding: 0;
-}
-
-/*
-    **root elements display block
-*/
-html,
-body {
-  display: block;
-}
-
-/*
-    ** Body main style
-*/
-body {
-  line-height: 1.317101995;
-  scroll-behavior: smooth;
-  font-family: 'Montserrat', sans-serif;
-  background-color: #163F4D;
-  color: #fff;
-  padding: 20px;
-  height: 100vh;
-  display: grid;
-  place-items: center;
-  padding-bottom: 100px;
-}
-
-button:focus {
-  outline: 0;
-}
-
-img,
-embed,
-svg,
-audio,
-canvas,
-iframe,
-video {
-  max-width: 100%;
-  height: auto;
-  vertical-align: middle;
-}
-
-h1, h1, h3, h4, p{
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.btn{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid;
-  text-align: center;
-  vertical-align: middle;
-  cursor: pointer;
-  line-height: 1.5;
-  transition: all .15s;
-  border-radius: 4px;
-  width: fit-content;
-  padding: 7.5px 20px;
-  font-size: 1.125rem;
-  color: #fff;
-  background-color: #3FB27F;
-  border-color: #3FB27F;
-  margin: 0 auto;
-  margin-top: 32px;
-}
-
-h1{
-  text-align: center;
-}
-
-// POPUP
-    .pop-up{
-        position:fixed;
-        top: 0;
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
         left: 0;
-        z-index: 10;
-        padding: 32px 16px 120px;
-        height: 100vh;
+        top: 0;
         width: 100%;
-        background-color: rgba($color: #52a07e, $alpha: 0.5);
-        display: grid;
-        place-items: center;
-
-        &-close{
-            position: absolute;
-            height: 52px;
-            width: 52px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            top: 0;
-            right: 0;
-            font-size: 3rem;
-            color: #d6d6d6;
-            cursor: pointer;
-        }
-
-        &-inner{
-            background-color: #fff;
-            color: #000;
-            position: relative;
-            width: 40%;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 5px 5px rgba($color: #000, $alpha: 0.2);
-            transition: all 250ms ease-in-out;
-        }
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
     }
 
-    .fade-enter,
-    .fade-leave-to{
-        opacity: 0;
-
-        .pop-up-inner{
-            opacity: 0;
-            transform: translateY(-32px);
-        }
+    .modal-content {
+        background-color: #fff;
+        width: 50%;
+        max-width: 400px;
+        margin: 20% auto;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .fade-enter-active,
-    .fade-leave-active{
-        transition: all 250ms ease-in-out;
-    }
-
-    .fade-leave-active{
-        transition-delay: 250ms;
-    }
-
-
-<!-- Estilos CSS -->
-<style>
-    /* ... Tus estilos CSS actuales ... */
-
-    /* Estilos para el pop-up */
-    .pop-up {
-        /* ... Estilos del pop-up actuales ... */
-    }
-
-    /* Estilos para la transición de entrada y salida del pop-up */
-    .fade-enter,
-    .fade-leave-to {
-        opacity: 0;
-
-        .pop-up-inner {
-            opacity: 0;
-            transform: translateY(-32px);
-        }
-    }
-
-    .fade-enter-active,
-    .fade-leave-active {
-        transition: all 250ms ease-in-out;
-    }
-
-    .fade-leave-active {
-        transition-delay: 250ms;
-    }
-</style>
