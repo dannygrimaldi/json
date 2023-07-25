@@ -1,43 +1,29 @@
+// mi_script.js
+function loadSelectedTheme() {
+  const body = document.body;
+  const selectedTheme = localStorage.getItem('selectedTheme');
+
+  if (selectedTheme === 'dark') {
+    body.classList.add('bootstrap-dark');
+    body.classList.add('dark-theme');
+  } else {
+    body.classList.add('bootstrap');
+  }
+}
+
 function toggleTheme() {
   const body = document.body;
+
   body.classList.toggle('bootstrap');
   body.classList.toggle('bootstrap-dark');
   body.classList.toggle('dark-theme');
 
-  // Aplicar el tema almacenado a las tablas
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    table.classList.toggle('table-dordered');
-    table.classList.toggle('table-dark');
-  });
-
-  // Obtener el tema actual después de los cambios
-  const currentTheme = body.classList.contains('bootstrap-dark') ? 'dark' : 'light';
-
-  // Guardar el tema seleccionado en el localStorage
-  localStorage.setItem('selectedTheme', currentTheme);
+  // Verificar qué tema se ha aplicado y almacenarlo en el localStorage
+  if (body.classList.contains('dark-theme')) {
+    localStorage.setItem('selectedTheme', 'dark');
+  } else {
+    localStorage.setItem('selectedTheme', 'light');
+  }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Al cargar la página, aplicar el tema almacenado en el localStorage
-  const selectedTheme = localStorage.getItem('selectedTheme');
-  if (selectedTheme) {
-    const body = document.body;
-    body.classList.add('bootstrap-' + selectedTheme);
-    if (selectedTheme === 'dark') {
-      body.classList.add('dark-theme');
-    }
-
-    // Aplicar el tema almacenado a las tablas
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      table.classList.add('table-' + selectedTheme);
-      if (selectedTheme === 'dark') {
-        table.classList.add('table-dark');
-      }
-    });
-  }
-
-  // Agregar evento al botón para cambiar el tema
-  document.getElementById('theme-switch').addEventListener("click", toggleTheme);
-});
+document.addEventListener('DOMContentLoaded', loadSelectedTheme);
