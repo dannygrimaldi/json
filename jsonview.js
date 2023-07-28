@@ -22,3 +22,17 @@
   </script>
 </body>
 </html>
+
+
+
+function mostrarAtributos(obj) {
+      var table = document.getElementById('atributosTable');
+      for (var key in obj) {
+        var row = table.insertRow();
+        var atributoCell = row.insertCell(0);
+        var valorCell = row.insertCell(1);
+
+        atributoCell.textContent = key;
+        valorCell.textContent = obj[key];
+      }
+    }
