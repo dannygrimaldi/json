@@ -1,0 +1,35 @@
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card col-lg-6 mx-auto">
+        <div class="card-header">
+            <h4 class="card-title">Registro</h4>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+                {{ error }}
+            </p>
+
+            <form action="{% url 'signup' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Número de Registro"required>
+                </div>
+                <div class="form-group">
+                    <label for="password1">Password</label>
+                    <input type="password" class="form-control" id="password1" name="password1" placeholder="Contraseña" required>
+                </div>
+                <div class="form-group">
+                    <label for="password2">Confirm Password</label>
+                    <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirmar contraseña"required>
+                </div>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
