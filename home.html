@@ -10,3 +10,31 @@
   {% endif %}
 
 {% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <input type="text" id="inputId">
+  <button id="submitButton" disabled>Enviar</button>
+
+  <script>
+    const palabrasClave = ["palabra1", "palabra2", "palabra3"];
+
+    // Función para verificar si el texto cumple con las palabras clave
+    function validarTexto(texto) {
+      return palabrasClave.every(palabra => texto.includes(palabra));
+    }
+
+    // Cuando el usuario escriba en el input
+    $("#inputId").on("input", function() {
+      const userInput = $(this).val();
+      const isValid = validarTexto(userInput);
+
+      // Habilitar o deshabilitar el botón de enviar según la validación
+      $("#submitButton").prop("disabled", !isValid);
+    });
+  </script>
+</body>
+</html>
