@@ -1,0 +1,12 @@
+DECLARE @cadenaOriginal NVARCHAR(MAX)
+SET @cadenaOriginal = 'Hola, ¿cómo estás? Esto es un ejemplo!!!'
+
+DECLARE @patron NVARCHAR(255)
+SET @patron = '%[^a-zA-Z0-9 ]%'; -- Coincidirá con caracteres no alfanuméricos ni espacios en blanco
+
+WHILE PATINDEX(@patron, @cadenaOriginal) > 0
+BEGIN
+    SET @cadenaOriginal = REPLACE(@cadenaOriginal, SUBSTRING(@cadenaOriginal, PATINDEX(@patron, @cadenaOriginal), 1), '')
+END
+
+SELECT @cadenaOriginal AS CadenaSinEspeciales
