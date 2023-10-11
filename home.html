@@ -108,3 +108,6 @@ if response.status_code == 200:
 else:
     print('La solicitud no fue exitosa. Código de respuesta:', response.status_code)
 
+UPDATE mi_tabla
+SET mi_campo = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+    mi_campo, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u'), 'Á', 'A'), 'É', 'E'), 'Í', 'I'), 'Ó', 'O'), 'Ú', 'U');
