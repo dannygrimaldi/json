@@ -39,3 +39,60 @@ BEGIN
 
  RETURN @c
 END
+CREATE FUNCTION LimpiarTexto
+(
+    @InputString NVARCHAR(MAX)
+)
+RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+    DECLARE @OutputString NVARCHAR(MAX) = '';
+    DECLARE @Index INT = 1;
+    DECLARE @Char NVARCHAR(1);
+
+    WHILE @Index <= LEN(@InputString)
+    BEGIN
+        SET @Char = SUBSTRING(@InputString, @Index, 1);
+
+        -- Sustituir la ñ por n
+        IF @Char = N'ñ'
+        BEGIN
+            SET @Char = N'n';
+        END
+
+        -- Eliminar caracteres ª y º
+        IF @Char NOT LIKE N'[ªº]'
+        BEGIN
+            -- Quitar acentos y diéresis
+            SET @Char = 
+                CASE
+                    WHEN @Char IN (N'à', N'á', N'â', N'ä', N'å', N'ã', N'æ') THEN N'a'
+                    WHEN @Char IN (N'À', N'Á', N'Â', N'Ä', N'Å', N'Ã', N'Æ') THEN N'A'
+                    WHEN @Char IN (N'è', N'é', N'ê', N'ë', N'?', N'?') THEN N'e'
+                    WHEN @Char IN (N'È', N'É', N'Ê', N'Ë', N'?', N'?') THEN N'E'
+                    WHEN @Char IN (N'ì', N'í', N'î', N'ï', N'i', N'i') THEN N'i'
+                    WHEN @Char IN (N'Ì', N'Í', N'Î', N'Ï', N'I', N'I') THEN N'I'
+                    WHEN @Char IN (N'ò', N'ó', N'ô', N'ö', N'õ', N'ø', N'o') THEN N'o'
+                    WHEN @Char IN (N'Ò', N'Ó', N'Ô', N'Ö', N'Õ', N'Ø', N'O') THEN N'O'
+                    WHEN @Char IN (N'ù', N'ú', N'û', N'ü', N'u', N'u', N'u') THEN N'u'
+                    WHEN @Char IN (N'Ù', N'Ú', N'Û', N'Ü', N'U', N'U', N'U') THEN N'U'
+                    WHEN @Char = N'ç' THEN N'c'
+                    WHEN @Char = N'Ç' THEN N'C'
+                    ELSE @Char
+                END
+            SET @OutputString = @OutputString + @Char;
+        END
+        ELSE
+        BEGIN
+            -- Conservar espacios en blanco y caracteres alfanuméricos
+            IF @Char LIKE N'[a-zA-Z0-9]' OR @Char = ' '
+            BEGIN
+                SET @OutputString = @OutputString + @Char;
+            END
+        END
+
+        SET @Index = @Index + 1;
+    END
+
+    RETURN @OutputString;
+END;
