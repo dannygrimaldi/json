@@ -8,6 +8,8 @@
 <body>
     <h1>Obtener Usuario desde URL</h1>
 
+    <p id="usuarioResultado">Usuario: </p>
+
     <script>
         // Función para obtener el usuario de la URL
         function obtenerUsuarioDesdeURL() {
@@ -16,16 +18,16 @@
 
             // Realizar una petición HEAD para obtener la URL a la que es redirigido
             fetch(url, { method: 'HEAD', redirect: 'follow' })
-                .then(response => {
-                    // Extraer la URL final después de seguir redirecciones
-                    const urlFinal = response.url;
-                    console.log('URL Final:', urlFinal);
-
+                .then(response => response.url)
+                .then(urlFinal => {
                     // Extraer los últimos 8 dígitos de la URL (asumiendo que son el usuario)
                     const usuario = urlFinal.slice(-8);
-                    console.log('Usuario:', usuario);
 
-                    // Aquí puedes hacer lo que quieras con el valor del usuario
+                    // Mostrar el usuario en el elemento HTML
+                    const usuarioResultado = document.getElementById('usuarioResultado');
+                    usuarioResultado.textContent = 'Usuario: ' + usuario;
+
+                    // Puedes hacer otras acciones con el valor del usuario si es necesario
                 })
                 .catch(error => {
                     console.error('Error:', error);
