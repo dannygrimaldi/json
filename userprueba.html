@@ -3,29 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba de Obtener Valor de Usuario</title>
+    <title>Obtener Usuario desde URL</title>
 </head>
 <body>
-    <h1>Prueba de Obtener Valor de Usuario</h1>
+    <h1>Obtener Usuario desde URL</h1>
 
     <script>
-        // Función para obtener el valor del parámetro 'usuario' de la URL
-        function obtenerValorUsuario() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const usuario = urlParams.get('usuario');
+        // Función para obtener el usuario de la URL
+        function obtenerUsuarioDesdeURL() {
+            // URL a la que se accede directamente
+            const url = 'http://ejemplo.com/usuario.aspx';
 
-            if (usuario) {
-                console.log('Valor del usuario:', usuario);
+            // Realizar una petición HEAD para obtener la URL a la que es redirigido
+            fetch(url, { method: 'HEAD', redirect: 'follow' })
+                .then(response => {
+                    // Extraer la URL final después de seguir redirecciones
+                    const urlFinal = response.url;
+                    console.log('URL Final:', urlFinal);
 
-                // Aquí puedes hacer lo que quieras con el valor del usuario
-            }
+                    // Extraer los últimos 8 dígitos de la URL (asumiendo que son el usuario)
+                    const usuario = urlFinal.slice(-8);
+                    console.log('Usuario:', usuario);
+
+                    // Aquí puedes hacer lo que quieras con el valor del usuario
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
 
         // Llama a la función al cargar la página
-        window.onload = obtenerValorUsuario;
+        window.onload = obtenerUsuarioDesdeURL;
     </script>
-
-    <!-- Agrega un enlace con la URL completa (incluyendo el parámetro 'usuario') para probar -->
-    <a href="http://tu-sitio.com/usuario.aspx?usuario=123">Enlace de prueba</a>
 </body>
 </html>
