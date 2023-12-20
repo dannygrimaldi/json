@@ -8,7 +8,8 @@
 <body>
     <h1>Obtener Usuario desde URL</h1>
 
-    <p id="usuarioResultado">Usuario: </p>
+    <!-- Div para mostrar el usuario -->
+    <div id="usuarioResultado"></div>
 
     <script>
         // Función para obtener el usuario de la URL
@@ -23,7 +24,7 @@
                     // Extraer los últimos 8 dígitos de la URL (asumiendo que son el usuario)
                     const usuario = urlFinal.slice(-8);
 
-                    // Mostrar el usuario en el elemento HTML
+                    // Mostrar el usuario en el div
                     const usuarioResultado = document.getElementById('usuarioResultado');
                     usuarioResultado.textContent = 'Usuario: ' + usuario;
 
