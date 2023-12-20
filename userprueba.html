@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Obtener Valor de Usuario</title>
+</head>
+<body>
+    <h1>Prueba de Obtener Valor de Usuario</h1>
+
+    <script>
+        // Función para obtener el valor del parámetro 'usuario' de la URL
+        function obtenerValorUsuario() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const usuario = urlParams.get('usuario');
+
+            if (usuario) {
+                console.log('Valor del usuario:', usuario);
+
+                // Aquí puedes hacer lo que quieras con el valor del usuario
+            }
+        }
+
+        // Llama a la función al cargar la página
+        window.onload = obtenerValorUsuario;
+    </script>
+
+    <!-- Agrega un enlace con la URL completa (incluyendo el parámetro 'usuario') para probar -->
+    <a href="http://tu-sitio.com/usuario.aspx?usuario=123">Enlace de prueba</a>
+</body>
+</html>
