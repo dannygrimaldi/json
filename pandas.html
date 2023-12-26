@@ -38,3 +38,18 @@ data = pd.read_csv(ruta_archivo, delimiter='\t', names=columnas, skiprows=5)  # 
 
 # Ahora 'data' contiene tus datos organizados por columnas
 
+
+
+
+
+def guardar_datos_en_csv(data, ruta_salida_csv):
+    # Guarda el DataFrame en un archivo CSV
+    data.to_csv(ruta_salida_csv, index=False)
+    print(f"\nDatos guardados en {ruta_salida_csv}")
+
+# Uso de las funciones
+ruta_archivo = 'tu_archivo.txt'
+ruta_salida_csv = 'datos_procesados.csv'
+
+datos = cargar_datos_desde_archivo(ruta_archivo)
+guardar_datos_en_csv(datos, ruta_salida_csv)
