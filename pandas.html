@@ -55,20 +55,18 @@ datos = cargar_datos_desde_archivo(ruta_archivo)
 guardar_datos_en_csv(datos, ruta_salida_csv)
 
 
-
-
-
 CREATE FUNCTION buscar_fila_con_valor
 (
-    @tabla NVARCHAR(255), -- Reemplaza con el nombre de tu tabla
+    @tabla NVARCHAR(255) = 'empleados',
     @valor_buscado NVARCHAR(MAX)
 )
 RETURNS TABLE
 AS
 RETURN
 (
-    SELECT *
-    FROM @tabla
-    WHERE COALESCE(columna1, columna2, columna3, columna4, columna5, columna6, columna7, columna8, columna9, columna10) = @valor_buscado;
-);
+    DECLARE @sql NVARCHAR(MAX);
 
+    SET @sql = 'SELECT * FROM ' + QUOTENAME(@tabla) + ' WHERE COALESCE(columna1, columna2, columna3, columna4, columna5, columna6, columna7, columna8, columna9, columna10) = @valor_buscado';
+
+    EXEC sp_executesql @sql, N'@valor_buscado NVARCHAR(MAX)', @valor_buscado;
+);
