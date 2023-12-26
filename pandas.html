@@ -58,25 +58,17 @@ guardar_datos_en_csv(datos, ruta_salida_csv)
 
 
 
-CREATE FUNCTION buscar_fila_con_valor(mi_valor VARCHAR) RETURNS TABLE AS $$
+CREATE FUNCTION buscar_fila_con_valor
+(
+    @tabla NVARCHAR(255), -- Reemplaza con el nombre de tu tabla
+    @valor_buscado NVARCHAR(MAX)
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT *
+    FROM @tabla
+    WHERE COALESCE(columna1, columna2, columna3, columna4, columna5, columna6, columna7, columna8, columna9, columna10) = @valor_buscado;
+);
 
-DECLARE
-    resultado TABLE;
-    columna_actual VARCHAR;
-BEGIN
-    -- Crea una tabla temporal para almacenar el resultado
-    CREATE TEMPORARY TABLE resultado_table AS
-    SELECT * FROM mi_tabla WHERE 1 = 0;
-
-    -- Itera sobre cada columna de la tabla
-    FOR columna_actual IN (SELECT column_name FROM information_schema.columns WHERE table_name = 'mi_tabla') LOOP
-        -- Verifica si la columna tiene valores diferentes de NULL (NA)
-        EXECUTE 'INSERT INTO resultado_table SELECT * FROM mi_tabla WHERE ' || columna_actual || ' = $1 AND ' || columna_actual || ' IS NOT NULL' USING mi_valor;
-    END LOOP;
-
-    -- Retorna el resultado
-    RETURN QUERY SELECT * FROM resultado_table;
-
-END;
-
-$$ LANGUAGE plpgsql;
