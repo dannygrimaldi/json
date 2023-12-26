@@ -15,3 +15,26 @@ columnas = pd.read_csv(pd.compat.StringIO(contenido_inicial), sep='\t').columns
 data = pd.read_csv(ruta_archivo, delimiter='\t', names=columnas, skiprows=5)  # Ajusta skiprows según sea necesario
 
 # Ahora 'data' contiene tus datos organizados por columnas
+
+
+
+
+import pandas as pd
+from io import StringIO
+
+ruta_archivo = 'tu_archivo.txt'
+
+# Lee las primeras líneas para determinar el número de columnas y sus nombres
+with open(ruta_archivo, 'r', encoding='utf-8') as archivo:
+    # Lee las primeras 5 líneas (ajusta según sea necesario)
+    primeras_lineas = [archivo.readline().strip() for _ in range(5)]
+
+# Combina las primeras líneas para analizar el delimitador y determinar los nombres de las columnas
+contenido_inicial = '\n'.join(primeras_lineas)
+columnas = pd.read_csv(StringIO(contenido_inicial), sep='\t').columns
+
+# Lee el resto de los datos utilizando Pandas
+data = pd.read_csv(ruta_archivo, delimiter='\t', names=columnas, skiprows=5)  # Ajusta skiprows según sea necesario
+
+# Ahora 'data' contiene tus datos organizados por columnas
+
