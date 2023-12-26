@@ -58,7 +58,6 @@ guardar_datos_en_csv(datos, ruta_salida_csv)
 
 
 
-
 CREATE FUNCTION buscar_fila_con_valor
 (
     @tabla NVARCHAR(255),
@@ -68,17 +67,12 @@ RETURNS TABLE
 AS
 RETURN
 (
-    SELECT *
-    FROM
-    (
-        SELECT *
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = @tabla
-    ) AS columns
-    CROSS APPLY
-    (
-        EXEC('SELECT * FROM ' + QUOTENAME(@tabla) + ' WHERE COALESCE(' + 
-             STUFF((SELECT ', ' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tabla FOR XML PATH('')), 1, 2, '') + 
-             ') = @valor_buscado')
-    ) AS result
+    DECLARE @sql NVARCHAR(MAX);
+    
+    SET @sql = N'SELECT * FROM ' + QUOTENAME(@tabla) + N' WHERE COALESCE(' +
+                STUFF((SELECT ', ' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tabla FOR XML PATH('')), 1, 2, '') +
+                N') = @valor_buscado';
+
+    EXEC sp_executesql @sql, N'@valor_buscado NVARCHAR(MAX)', @valor_buscado;
 );
+
