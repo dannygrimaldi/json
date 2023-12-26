@@ -134,3 +134,66 @@ EXEC dbo.BuscaValorEnBBDD 'texto'
 
 
 
+
+
+
+
+
+CREATE PROC BuscaValorEnBBDD
+(
+    @StrValorBusqueda NVARCHAR(100)
+)
+AS
+BEGIN
+    CREATE TABLE #Resultado (NombreTablaColumna NVARCHAR(370), ValorColumna NVARCHAR(3630))
+    SET NOCOUNT ON
+
+    DECLARE @NombreTabla NVARCHAR(256),
+            @NombreColumna NVARCHAR(128),
+            @StrValorBusqueda2 NVARCHAR(110),
+            @Sql NVARCHAR(MAX);
+
+    SET @NombreTabla = '';
+    SET @StrValorBusqueda2 = QUOTENAME('%' + @StrValorBusqueda + '%','''');
+
+    WHILE @NombreTabla IS NOT NULL
+    BEGIN
+        SET @NombreColumna = '';
+        SET @NombreTabla =
+            (SELECT MIN(QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME))
+             FROM INFORMATION_SCHEMA.TABLES
+             WHERE TABLE_TYPE = 'BASE TABLE'
+             AND QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) > @NombreTabla
+             AND OBJECTPROPERTY(OBJECT_ID(QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME)), 'IsMSShipped') = 0);
+
+        WHILE (@NombreTabla IS NOT NULL) AND (@NombreColumna IS NOT NULL)
+        BEGIN
+            SET @NombreColumna =
+                (SELECT MIN(QUOTENAME(COLUMN_NAME))
+                 FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = PARSENAME(@NombreTabla, 2)
+                 AND TABLE_NAME = PARSENAME(@NombreTabla, 1)
+                 AND DATA_TYPE IN ('char', 'varchar', 'nchar', 'nvarchar')
+                 AND QUOTENAME(COLUMN_NAME) > @NombreColumna);
+
+            IF @NombreColumna IS NOT NULL
+            BEGIN
+                SET @Sql = 
+                    'INSERT INTO #Resultado 
+                     SELECT ''' + @NombreTabla + '.' + @NombreColumna + ''', * 
+                     FROM ' + @NombreTabla + ' (NOLOCK) 
+                     WHERE ' + @NombreColumna + ' LIKE ' + @StrValorBusqueda2;
+
+                EXEC sp_executesql @Sql;
+            END
+        END
+    END
+
+    SELECT * FROM #Resultado;
+
+    DROP TABLE #Resultado;
+END
+
+
+
+
