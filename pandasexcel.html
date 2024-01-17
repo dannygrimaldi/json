@@ -1,5 +1,29 @@
-import openpyxl
 import pandas as pd
+
+def excel_a_csv(ruta_excel, ruta_csv):
+    try:
+        # Leer el archivo Excel
+        df = pd.read_excel(ruta_excel, engine='openpyxl')
+
+        # Guardar el DataFrame como un archivo CSV
+        df.to_csv(ruta_csv, index=False)
+
+        print(f'Conversión exitosa. Archivo CSV guardado en: {ruta_csv}')
+
+    except Exception as e:
+        print(f"Error al convertir el archivo Excel a CSV: {e}")
+
+if __name__ == "__main__":
+    # Ruta del archivo Excel
+    ruta_excel = 'Libro 2.xlsx'
+
+    # Ruta de destino del archivo CSV
+    ruta_csv = 'datos.csv'
+
+    # Llamar a la función para realizar la conversión
+    excel_a_csv(ruta_excel, ruta_csv)
+
+import openpyxl
 
 def mostrar_info_excel(ruta_archivo):
     try:
@@ -11,9 +35,11 @@ def mostrar_info_excel(ruta_archivo):
             print(f"\n=== Hoja: {nombre_hoja} ===")
             hoja = libro[nombre_hoja]
 
-            # Utilizar pandas para mostrar la información de la hoja
-            df = pd.DataFrame(hoja.values)
-            print(df)
+            # Mostrar información de la hoja sin pandas
+            for fila in hoja.iter_rows():
+                for celda in fila:
+                    print(celda.value, "|", end="")
+                print("")
 
     except Exception as e:
         print(f"Error al leer el archivo Excel: {e}")
