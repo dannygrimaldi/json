@@ -1,21 +1,32 @@
+import openpyxl
 import pandas as pd
 
 def mostrar_info_excel(ruta_archivo):
     try:
-        # Leer todas las hojas del archivo Excel
-        diccionario_de_dataframes = pd.read_excel(ruta_archivo, engine='openpyxl', sheet_name=None)
+        # Cargar el archivo Excel
+        libro = openpyxl.load_workbook(ruta_archivo, data_only=True)
 
         # Mostrar información de cada hoja
-        for nombre_hoja, dataframe in diccionario_de_dataframes.items():
+        for nombre_hoja in libro.sheetnames:
             print(f"\n=== Hoja: {nombre_hoja} ===")
-            print(dataframe)
+            hoja = libro[nombre_hoja]
+
+            # Utilizar pandas para mostrar la información de la hoja
+            df = pd.DataFrame(hoja.values)
+            print(df)
 
     except Exception as e:
         print(f"Error al leer el archivo Excel: {e}")
 
+    finally:
+        # Cerrar el archivo Excel después de usarlo
+        if 'libro' in locals() and libro is not None:
+            libro.close()
+
 if __name__ == "__main__":
     # Ruta del archivo Excel
-    ruta_archivo = 'ruta_del_archivo.xlsx'
+    ruta_archivo = 'Libro 2.xlsx'
 
     # Llamar a la función para mostrar la información
     mostrar_info_excel(ruta_archivo)
+
