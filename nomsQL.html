@@ -247,3 +247,52 @@ BEGIN
     RETURN @Result;
 END;
 
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE FUNCTION dbo.SUBSTRING_INDEX
+(
+    @InString NVARCHAR(MAX),
+    @Delimiter NVARCHAR(MAX),
+    @Count INT
+)
+RETURNS NVARCHAR(200)
+AS
+BEGIN
+    DECLARE @Result NVARCHAR(MAX);
+
+    IF @Count = 0
+    BEGIN
+        RETURN '';
+    END;
+
+    IF @Count > 0
+    BEGIN
+        SET @Result = (
+            SELECT value
+            FROM STRING_SPLIT(@InString, @Delimiter)
+            ORDER BY (SELECT NULL)
+            OFFSET @Count - 1 ROWS FETCH NEXT 1 ROW ONLY
+        );
+    END
+    ELSE
+    BEGIN
+        SET @Result = (
+            SELECT value
+            FROM STRING_SPLIT(@InString, @Delimiter)
+            ORDER BY (SELECT NULL)
+            OFFSET (SELECT COUNT(*) FROM STRING_SPLIT(@InString, @Delimiter)) + @Count ROWS FETCH NEXT 1 ROW ONLY
+        );
+    END;
+
+    RETURN @Result;
+END;
