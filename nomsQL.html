@@ -1,0 +1,7 @@
+SELECT 
+    LEFT(UPPER(TRIM(Datos2)), CHARINDEX(' ', UPPER(TRIM(Datos2))) + LEFT(TRIM(Datos1), 2)) AS [VAR - Nombre],
+    RIGHT(UPPER(TRIM(Datos2)), LEN(Datos2) - CHARINDEX(' ', UPPER(TRIM(Datos2))) + RIGHT(LEFT(TRIM(Datos1), 3), 1)) AS [VAR - Apellido Materno],
+    RIGHT(UPPER(TRIM(Datos2)), LEN(Datos2) - CHARINDEX(' ', UPPER(TRIM(Datos2))) + LEFT(TRIM(Datos1), 2)) AS [VAR - Apellidos],
+    REPLACE([VAR - Apellidos], [VAR - Apellido Materno], '') AS [VAR - Apellido Paterno]
+FROM 
+    tu_tabla;
