@@ -26,3 +26,47 @@ SELECT
     CURP
 FROM
     TuTabla;
+
+
+
+
+CREATE FUNCTION dbo.SUBSTRING_INDEX
+(
+    @str NVARCHAR(4000),
+    @delim NVARCHAR(1),
+    @count INT
+)
+RETURNS NVARCHAR(4000)
+AS
+BEGIN
+    DECLARE @Result NVARCHAR(4000);
+
+    SET @Result = NULL;
+
+    ;WITH SplitData AS (
+        SELECT 
+            CAST(0 AS INT) AS StartPos,
+            CHARINDEX(@delim, @str) AS EndPos,
+            1 AS Occurrence
+
+        UNION ALL
+
+        SELECT 
+            EndPos + 1 AS StartPos,
+            CHARINDEX(@delim, @str, EndPos + 1) AS EndPos,
+            Occurrence + 1 AS Occurrence
+        FROM 
+            SplitData
+        WHERE 
+            EndPos > 0
+    )
+    SELECT TOP 1 @Result = SUBSTRING(@str, StartPos, EndPos - StartPos)
+    FROM 
+        SplitData
+    WHERE 
+        Occurrence = @count
+    ORDER BY 
+        StartPos;
+
+    RETURN @Result;
+END
