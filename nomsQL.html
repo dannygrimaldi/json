@@ -185,3 +185,65 @@ select tr.i,
        CASE WHEN tr.answer = tr.expected THEN 'Test Succeeded' ELSE 'Test Failed' END testState
   from @TestResults tr
  order by i;
+
+
+
+
+
+
+
+CREATE FUNCTION dbo.SUBSTRING_INDEX
+(
+    @InString NVARCHAR(MAX),
+    @Delimiter NVARCHAR(MAX),
+    @Count INT
+)
+RETURNS NVARCHAR(200)
+AS
+BEGIN
+    DECLARE @Result NVARCHAR(MAX);
+    DECLARE @Pos INT;
+    DECLARE @DelimiterOffsets TABLE (i INT IDENTITY(1, 1), offset INT);
+
+    IF @Count = 0
+    BEGIN
+        RETURN '';
+    END;
+
+    SET @Pos = CHARINDEX(@Delimiter, @InString, 1);
+
+    IF @Pos = 0
+    BEGIN
+        RETURN @InString;
+    END;
+
+    WHILE @Pos > 0
+    BEGIN
+        INSERT INTO @DelimiterOffsets (offset) VALUES (@Pos);
+        SET @Pos = CHARINDEX(@Delimiter, @InString, @Pos + LEN(@Delimiter));
+    END;
+
+    DECLARE @DelimitersFound INT = (SELECT COUNT(*) FROM @DelimiterOffsets);
+
+    IF ABS(@Count) > @DelimitersFound
+    BEGIN
+        RETURN @InString;
+    END;
+
+    DECLARE @StartSubstring INT = 0;
+    DECLARE @EndSubstring INT = LEN(@InString);
+
+    IF @Count > 0
+    BEGIN
+        SET @EndSubstring = (SELECT offset FROM @DelimiterOffsets WHERE i = @Count);
+    END
+    ELSE
+    BEGIN
+        SET @StartSubstring = (SELECT offset + LEN(@Delimiter) FROM @DelimiterOffsets WHERE i = (@DelimitersFound + @Count + 1));
+    END;
+
+    SET @Result = SUBSTRING(@InString, @StartSubstring + 1, @EndSubstring - @StartSubstring - LEN(@Delimiter));
+
+    RETURN @Result;
+END;
+
