@@ -1,0 +1,22 @@
+{
+  "message": {
+    "text": "Por favor, elige una opción:",
+    "quickReplies": [
+      {
+        "contentType": "text",
+        "title": "Opción 1",
+        "payload": "Opción 1 seleccionada"
+      },
+      {
+        "contentType": "text",
+        "title": "Opción 2",
+        "payload": "Opción 2 seleccionada"
+      },
+      {
+        "contentType": "text",
+        "title": "Opción 3",
+        "payload": "Opción 3 seleccionada"
+      }
+    ]
+  }
+}
