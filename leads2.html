@@ -1,0 +1,118 @@
+class GraficoData_LeadsAPIView(APIView):
+    def get(self, request, format=None):
+        # Definición del diccionario de meses
+        meses = {
+            1: 'ENE',
+            2: 'FEB',
+            3: 'MAR',
+            4: 'ABR',
+            5: 'MAY',
+            6: 'JUN',
+            7: 'JUL',
+            8: 'AGO',
+            9: 'SEP',
+            10: 'OCT',
+            11: 'NOV',
+            12: 'DIC'
+        }
+
+        # Obtener datos de la base de datos
+        leads = Lead.objects.filter(canal='TPSA').annotate(month=TruncMonth('cve_mes')).values('month', 'producto', 'frescura', 'uni_score')
+
+        # Estructura de datos para almacenar la información procesada
+        data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        meses_anos = defaultdict(set)  # Diccionario para almacenar los meses y años únicos encontrados para cada producto
+
+        # Procesar los datos obtenidos de la base de datos
+        for lead in leads:
+            producto = lead['producto']
+            frescura = lead['frescura']
+            mes = meses[lead['month'].month]
+            ano = lead['month'].year
+            uni_score = lead['uni_score']
+            
+            # Sumar el valor de uni_score al mes correspondiente y a la frescura correspondiente
+            data[producto][f'Frescura {frescura}'][mes] += uni_score
+
+            # Almacenar el mes y año para este producto
+            meses_anos[producto].add((mes, ano))
+
+        # Llenar con ceros los meses faltantes para cada producto
+        for producto, meses_y_anos in meses_anos.items():
+            for mes, ano in meses_y_anos:
+                for frescura_data in data[producto].values():
+                    frescura_data[mes]  # Acceder a cada mes para asegurarse de que exista
+
+        # Convertir el diccionario en la estructura de datos requerida
+        result = []
+
+        for producto, frescuras_data in data.items():
+            series = []
+
+            for frescura, uni_score_por_mes in frescuras_data.items():
+                series.append({
+                    'name': frescura,
+                    'type': 'bar',
+                    'data': list(uni_score_por_mes.values())
+                })
+
+            # Obtener una lista de los meses y años únicos encontrados para este producto
+            meses_ordenados = sorted(set([f'{mes} {str(ano)[2:]}' for mes, ano in meses_anos[producto]]))
+
+            result.append({
+                'label': producto,
+                'series': series,
+                'options': {
+                    'chart': {
+                        'type': 'bar',
+                        'height': 350,
+                        'stacked': True,
+                        'toolbar': {'show': True},
+                        'zoom': {'enabled': True}
+                    },
+                    'responsive': [
+                        {
+                            'breakpoint': 480,
+                            'options': {
+                                'legend': {
+                                    'position': 'bottom',
+                                    'offsetX': -10,
+                                    'offsetY': 0
+                                }
+                            }
+                        }
+                    ],
+                    'plotOptions': {
+                        'bar': {
+                            'horizontal': False,
+                            'borderRadius': 10,
+                            'dataLabels': {
+                                'total': {
+                                    'enabled': True,
+                                    'style': {
+                                        'fontSize': '13px',
+                                        'fontWeight': 900
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    'title': {
+                        'text': 'Frescuras',  # Título del gráfico
+                        'align': 'left',  # Alineación del título
+                        'offsetX': 110  # Desplazamiento horizontal del título
+                    },
+                    'xaxis': {
+                        'categories': meses_ordenados  # Lista completa de meses y años
+                    },
+                    'legend': {
+                        'position': 'right',
+                        'offsetY': 40
+                    },
+                    'fill': {
+                        'opacity': 1
+                    }
+                }
+            })
+
+        return Response(result)
