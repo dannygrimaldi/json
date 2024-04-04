@@ -1,0 +1,128 @@
+from collections import defaultdict
+from django.db.models.functions import TruncMonth
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import Lead
+
+class GraficoData_LeadsAPIView(APIView):
+    def get(self, request, format=None):
+        # Definición del diccionario de meses
+        meses = {
+            1: 'ENE',
+            2: 'FEB',
+            3: 'MAR',
+            4: 'ABR',
+            5: 'MAY',
+            6: 'JUN',
+            7: 'JUL',
+            8: 'AGO',
+            9: 'SEP',
+            10: 'OCT',
+            11: 'NOV',
+            12: 'DIC'
+        }
+
+        # Obtener datos de la base de datos
+        leads = Lead.objects.filter(canal='TPSA').annotate(month=TruncMonth('cve_mes')).values('month', 'producto', 'frescura', 'uni_score')
+        # Estructura de datos para almacenar la información procesada
+        data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+
+        # Procesar los datos obtenidos de la base de datos
+        for lead in leads:
+            producto = lead['producto']
+            frescura = lead['frescura']
+            mes = lead['month'].month
+            year = lead['month'].year
+            mes_year = year * 100 + mes  # Combinar año y mes en un solo número 202300+4=202304
+            uni_score = lead['uni_score']
+            
+            # Sumar el valor de uni_score al mes y año correspondientes y a la frescura correspondiente
+            data[producto][f'Frescura {frescura}'][mes_year] += uni_score
+
+        # Llenar los vacíos con ceros para asegurar que todas las frescuras tengan valores para todos los meses y años
+        for producto, frescuras_data in data.items():
+            meses_ya_registrados = set()  # Para almacenar los meses ya registrados para cada frescura
+            for frescura, puntajes_por_mes_year in frescuras_data.items():
+                for mes_year in range(min(puntajes_por_mes_year.keys()), max(puntajes_por_mes_year.keys()) + 1):
+                    if mes_year not in puntajes_por_mes_year:
+                        puntajes_por_mes_year[mes_year] = 0  # Establecer cero si no hay datos para este mes y año
+                meses_ya_registrados.update(puntajes_por_mes_year.keys())
+
+            # Establecer cero para los meses y años que no tienen datos para todas las frescuras
+            for frescura, puntajes_por_mes_year in frescuras_data.items():
+                for mes_year in range(min(meses_ya_registrados), max(meses_ya_registrados) + 1):
+                    if mes_year not in puntajes_por_mes_year:
+                        puntajes_por_mes_year[mes_year] = 0
+
+        # Convertir el diccionario en la estructura de datos requerida
+        result = []
+
+        for producto, frescuras_data in data.items():
+            series = []
+
+            for frescura, puntajes_por_mes_year in frescuras_data.items():
+                # Ordenar los puntajes por mes y año para asegurar el orden correcto en el gráfico
+                puntajes_ordenados = [puntajes_por_mes_year[mes_year] for mes_year in sorted(puntajes_por_mes_year.keys())]
+                series.append({
+                    'name': frescura,
+                    'type': 'bar',
+                    'data': puntajes_ordenados
+                })
+
+            result.append({
+                'label': producto,
+                'series': series,
+                'options': {
+                    'chart': {
+                        'type': 'bar',
+                        'height': 350,
+                        'stacked': True,
+                        'toolbar': {'show': True},
+                        'zoom': {'enabled': True}
+                    },
+                    'responsive': [
+                        {
+                            'breakpoint': 480,
+                            'options': {
+                                'legend': {
+                                    'position': 'bottom',
+                                    'offsetX': -10,
+                                    'offsetY': 0
+                                }
+                            }
+                        }
+                    ],
+                    'plotOptions': {
+                        'bar': {
+                            'horizontal': False,
+                            'borderRadius': 10,
+                            'dataLabels': {
+                                'total': {
+                                    'enabled': True,
+                                    'style': {
+                                        'fontSize': '13px',
+                                        'fontWeight': 900
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    'title': {
+                        'text': 'Frescuras',  # Título del gráfico
+                        'align': 'left',  # Alineación del título
+                        'offsetX': 110  # Desplazamiento horizontal del título
+                    },
+                    'xaxis': {
+                        'categories': [f'{meses[mes_year % 100]} {str(mes_year // 100)[2:]}' for mes_year in sorted(puntajes_por_mes_year.keys())]  # Lista completa de meses y años
+                    },
+                    'legend': {
+                        'position': 'right',
+                        'offsetY': 40
+                    },
+                    'fill': {
+                        'opacity': 1
+                    }
+                }
+            })
+
+        return Response(result)
