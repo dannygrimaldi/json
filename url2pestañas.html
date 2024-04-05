@@ -1,0 +1,27 @@
+from django.contrib import admin
+from django.urls import path, re_path, include
+from django.views.generic import TemplateView
+from django.conf.urls.static import static
+from django.conf import settings
+from evacore.views import MyTokenObtainPairView, get_perfil,SelectItemsDDA, GraficoData_Leads_UnidadesdispAPIView, GraficoData_Leads_MontodispAPIView
+
+
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+)
+
+
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('get_profile/', get_perfil),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('Selectdatatdd', SelectItemsDDA.as_view()),
+    path('api/data/Leads/unidades', GraficoData_Leads_UnidadesdispAPIView.as_view(), name='grafico_data_api'),
+    path('api/data/Leads/monto', GraficoData_Leads_MontodispAPIView.as_view(), name='grafico_data_api'),
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
