@@ -1,9 +1,3 @@
-from collections import defaultdict
-from django.db.models.functions import TruncMonth
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Lead
-
 class GraficoData_LeadsAPIView(APIView):
     def get(self, request, format=None):
         # Definición del diccionario de meses
@@ -39,30 +33,19 @@ class GraficoData_LeadsAPIView(APIView):
             # Sumar el valor de uni_score al mes y año correspondientes y a la frescura correspondiente
             data[producto][f'Frescura {frescura}'][mes_year] += uni_score
 
-        # Llenar los vacíos con ceros para asegurar que todas las frescuras tengan valores para todos los meses y años
-        for producto, frescuras_data in data.items():
-            meses_ya_registrados = set()  # Para almacenar los meses ya registrados para cada frescura
-            for frescura, puntajes_por_mes_year in frescuras_data.items():
-                for mes_year in range(min(puntajes_por_mes_year.keys()), max(puntajes_por_mes_year.keys()) + 1):
-                    if mes_year not in puntajes_por_mes_year:
-                        puntajes_por_mes_year[mes_year] = 0  # Establecer cero si no hay datos para este mes y año
-                meses_ya_registrados.update(puntajes_por_mes_year.keys())
-
-            # Establecer cero para los meses y años que no tienen datos para todas las frescuras
-            for frescura, puntajes_por_mes_year in frescuras_data.items():
-                for mes_year in range(min(meses_ya_registrados), max(meses_ya_registrados) + 1):
-                    if mes_year not in puntajes_por_mes_year:
-                        puntajes_por_mes_year[mes_year] = 0
-
         # Convertir el diccionario en la estructura de datos requerida
         result = []
 
         for producto, frescuras_data in data.items():
             series = []
 
+            all_months_years = set()
             for frescura, puntajes_por_mes_year in frescuras_data.items():
-                # Ordenar los puntajes por mes y año para asegurar el orden correcto en el gráfico
-                puntajes_ordenados = [puntajes_por_mes_year[mes_year] for mes_year in sorted(puntajes_por_mes_year.keys())]
+                all_months_years.update(puntajes_por_mes_year.keys())
+
+            for frescura, puntajes_por_mes_year in frescuras_data.items():
+                # Generar puntajes con cero para todos los meses y años posibles
+                puntajes_ordenados = [puntajes_por_mes_year.get(mes_year, 0) for mes_year in sorted(all_months_years)]
                 series.append({
                     'name': frescura,
                     'type': 'bar',
@@ -113,7 +96,7 @@ class GraficoData_LeadsAPIView(APIView):
                         'offsetX': 110  # Desplazamiento horizontal del título
                     },
                     'xaxis': {
-                        'categories': [f'{meses[mes_year % 100]} {str(mes_year // 100)[2:]}' for mes_year in sorted(puntajes_por_mes_year.keys())]  # Lista completa de meses y años
+                        'categories': [f'{meses[mes_year % 100]} {str(mes_year // 100)[2:]}' for mes_year in sorted(all_months_years)]  # Lista completa de meses y años
                     },
                     'legend': {
                         'position': 'right',
