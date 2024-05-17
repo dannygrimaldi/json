@@ -1,0 +1,20 @@
+WITH consulta_1 AS (
+    SELECT
+        FECHA_RECEPCION,
+        agencia,
+        ROW_NUMBER() OVER (PARTITION BY agencia ORDER BY FECHA_RECEPCION) AS rn
+    FROM
+        CONTROL_MAIL
+)
+SELECT
+    COALESCE(a.rn, b.rn) AS rn,
+    a.FECHA_RECEPCION AS MUNOZ,
+    b.FECHA_RECEPCION AS STO
+FROM
+    (SELECT FECHA_RECEPCION, rn FROM consulta_1 WHERE agencia = 'MUNOZ') a
+FULL OUTER JOIN
+    (SELECT FECHA_RECEPCION, rn FROM consulta_1 WHERE agencia = 'STO') b
+ON
+    a.rn = b.rn
+ORDER BY
+    rn;
