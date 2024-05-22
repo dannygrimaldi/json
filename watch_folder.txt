@@ -1,0 +1,32 @@
+@echo off
+SETLOCAL
+
+REM Configura las variables
+SET "FOLDER_PATH=C:\ruta\a\la\carpeta"
+SET "DATABASE_NAME=MiBaseDeDatos"
+SET "SERVER_NAME=MiServidorSQL"
+SET "QUERY_FILE=C:\ruta\a\consulta.sql"
+SET "OUTPUT_FILE=C:\ruta\a\resultado.csv"
+SET "TABLE_NAME=MiTablaTemporal"
+
+REM Bucles infinito
+:LOOP
+    REM Buscar archivos CSV en la carpeta
+    FOR %%F IN ("%FOLDER_PATH%\*.csv") DO (
+        SET "FILE_PATH=%%F"
+
+        REM Importar el archivo CSV a la tabla en SQL Server
+        sqlcmd -S %SERVER_NAME% -d %DATABASE_NAME% -Q "BULK INSERT %TABLE_NAME% FROM '%%FILE_PATH%%' WITH (FIELDTERMINATOR = ',', ROWTERMINATOR = '\n', FIRSTROW = 2);"
+
+        REM Ejecutar la consulta SQL y guardar el resultado en un archivo CSV
+        sqlcmd -S %SERVER_NAME% -d %DATABASE_NAME% -i %QUERY_FILE% -o %OUTPUT_FILE% -s"," -W
+
+        REM Mover el archivo procesado a una subcarpeta de archivos procesados
+        MOVE "%%FILE_PATH%%" "%FOLDER_PATH%\procesados\%%~nxF"
+    )
+
+    REM Esperar 60 segundos antes de la siguiente verificación
+    TIMEOUT /T 60 > NUL
+    GOTO LOOP
+
+ENDLOCAL
