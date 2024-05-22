@@ -9,6 +9,11 @@ SET "QUERY_FILE=C:\ruta\a\consulta.sql"
 SET "OUTPUT_FILE=C:\ruta\a\resultado.csv"
 SET "TABLE_NAME=MiTablaTemporal"
 
+REM Asegurarse de que la carpeta procesados exista
+IF NOT EXIST "%FOLDER_PATH%\procesados" (
+    mkdir "%FOLDER_PATH%\procesados"
+)
+
 REM Bucles infinito
 :LOOP
     REM Buscar archivos CSV en la carpeta
