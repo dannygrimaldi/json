@@ -49,6 +49,56 @@ def probar_conexion(ruta_db):
             connection.close()
             print("Conexión cerrada exitosamente")
 
+
+
+#############################
+import sqlite3
+
+def leer_archivo(file_path, tabla):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    rows = [line.strip().split('|') for line in lines]
+    return tabla, rows
+
+def insertar_datos_en_db(db_path, tabla, rows):
+    try:
+        # Conectar a la base de datos
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        # Borrar los datos existentes de la tabla especificada
+        cursor.execute(f'DELETE FROM {tabla}')
+
+        # Insertar los datos
+        for row in rows:
+            placeholders = ', '.join(['?' for _ in row])
+            cursor.execute(f'INSERT INTO {tabla} VALUES ({placeholders})', row)
+        print("Datos insertados exitosamente")
+
+        # Confirmar los cambios
+        connection.commit()
+
+    except sqlite3.Error as error:
+        print(f"Error al insertar datos en la base de datos: {error}")
+
+    finally:
+        # Cerrar la conexión
+        if connection:
+            connection.close()
+            print("Conexión cerrada exitosamente")
+
+# Ruta de la base de datos y del archivo de texto
+db_path = 'mi_base_de_datos.db'
+file_path = 'ruta/al/archivo.txt'
+tabla = 'usuarios'  # Nombre de la tabla a modificar
+
+# Leer el archivo y obtener los datos
+tabla, rows = leer_archivo(file_path, tabla)
+
+# Insertar los datos en la base de datos
+insertar_datos_en_db(db_path, tabla, rows)
+
+
 # Ruta de la base de datos
 ruta_db = 'ruta/a/tu/base_de_datos.db'
 
