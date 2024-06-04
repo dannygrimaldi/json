@@ -1,0 +1,56 @@
+import sqlite3
+
+def probar_conexion(ruta_db):
+    try:
+        # Conectar a la base de datos
+        connection = sqlite3.connect(ruta_db)
+        print("Conexión establecida exitosamente")
+
+        # Crear un cursor
+        cursor = connection.cursor()
+
+        # Crear una tabla de prueba
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS prueba (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL
+        )
+        ''')
+        print("Tabla de prueba creada exitosamente")
+
+        # Insertar un dato de prueba
+        cursor.execute('''
+        INSERT INTO prueba (nombre) VALUES ('Dato de prueba')
+        ''')
+        print("Dato de prueba insertado exitosamente")
+
+        # Confirmar los cambios
+        connection.commit()
+
+        # Consultar el dato insertado
+        cursor.execute('SELECT * FROM prueba')
+        filas = cursor.fetchall()
+        for fila in filas:
+            print(f"Fila recuperada: {fila}")
+
+        # Eliminar la tabla de prueba
+        cursor.execute('DROP TABLE IF EXISTS prueba')
+        print("Tabla de prueba eliminada exitosamente")
+
+        # Confirmar los cambios
+        connection.commit()
+
+    except sqlite3.Error as error:
+        print(f"Error al conectar con la base de datos: {error}")
+
+    finally:
+        # Cerrar la conexión
+        if connection:
+            connection.close()
+            print("Conexión cerrada exitosamente")
+
+# Ruta de la base de datos
+ruta_db = 'ruta/a/tu/base_de_datos.db'
+
+# Probar la conexión
+probar_conexion(ruta_db)
