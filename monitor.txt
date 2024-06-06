@@ -104,3 +104,84 @@ class Handler(FileSystemEventHandler):
 if __name__ == '__main__':
     w = Watcher()
     w.run()
+
+
+
+
+###########################################################################
+
+import os
+import time
+import pyodbc
+import csv
+import logging
+
+# Configuración de logging
+logging.basicConfig(filename='monitor.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+
+# Configuración de la base de datos
+server = 'tu_servidor'
+database = 'tu_base_de_datos'
+conn_str = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
+
+# Configuración de la carpeta a monitorear
+FOLDER_TO_WATCH = 'ruta/a/la/carpeta'
+QUERY = """
+SELECT columna1, columna2, columna3
+FROM tu_tabla
+WHERE condicion1 AND condicion2
+ORDER BY columnaX;
+"""
+OUTPUT_CSV = 'resultados.csv'
+
+def process_csv(file_path):
+    try:
+        # Leer el archivo CSV
+        with open(file_path, newline='', encoding='utf-8') as csvfile:
+            csv_reader = csv.reader(csvfile)
+            columns = next(csv_reader)  # Obtener encabezados
+            rows = [row for row in csv_reader]
+
+        # Conectar a la base de datos
+        conexion = pyodbc.connect(conn_str)
+        cursor = conexion.cursor()
+
+        # Insertar los datos en la tabla SQL
+        for row in rows:
+            cursor.execute(f"INSERT INTO tu_tabla ({', '.join(columns)}) VALUES ({', '.join(['?' for _ in row])})", row)
+        conexion.commit()
+
+        # Ejecutar la consulta y guardar el resultado en un nuevo CSV
+        cursor.execute(QUERY)
+        resultados = cursor.fetchall()
+        column_names = [desc[0] for desc in cursor.description]
+
+        with open(OUTPUT_CSV, mode='w', newline='', encoding='utf-8') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerow(column_names)
+            for fila in resultados:
+                csv_writer.writerow(fila)
+
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        conexion.close()
+
+        logging.info(f'Procesado: {file_path}, Resultado guardado en: {OUTPUT_CSV}')
+    except Exception as e:
+        logging.error(f"Error procesando {file_path}: {e}")
+
+if __name__ == '__main__':
+    try:
+        while True:
+            # Obtener la lista de archivos en la carpeta monitoreada
+            archivos = os.listdir(FOLDER_TO_WATCH)
+            for archivo in archivos:
+                if archivo.endswith('.csv'):
+                    archivo_completo = os.path.join(FOLDER_TO_WATCH, archivo)
+                    process_csv(archivo_completo)
+            # Esperar antes de volver a verificar la carpeta
+            time.sleep(5)
+    except KeyboardInterrupt:
+        logging.info("Proceso interrumpido manualmente.")
+    except Exception as e:
+        logging.error(f"Error general: {e}")
