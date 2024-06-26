@@ -212,3 +212,112 @@ LEFT JOIN
     bloque_3_sto bloq6 ON f.NOMBRE_ARCHIVO LIKE '%BLOQUE 3 STO%'
 ORDER BY
     rn;
+
+
+
+
+------------------
+
+WITH consulta_1 AS (
+    SELECT
+        FECHA_RECEPCION,
+        NOMBRE_ARCHIVO,
+        entryID,
+        CASE 
+            WHEN NOMBRE_ARCHIVO LIKE '%MUNOZ%' AND NOMBRE_ARCHIVO LIKE '%1%' THEN 'BLOQUE 1 MUNOZ'
+            WHEN NOMBRE_ARCHIVO LIKE '%MUNOZ%' AND NOMBRE_ARCHIVO LIKE '%2%' THEN 'BLOQUE 2 MUNOZ'
+            WHEN NOMBRE_ARCHIVO LIKE '%MUNOZ%' AND NOMBRE_ARCHIVO LIKE '%3%' THEN 'BLOQUE 3 MUNOZ'
+            WHEN NOMBRE_ARCHIVO LIKE '%STO%' AND NOMBRE_ARCHIVO LIKE '%1%' THEN 'BLOQUE 1 STO'
+            WHEN NOMBRE_ARCHIVO LIKE '%STO%' AND NOMBRE_ARCHIVO LIKE '%2%' THEN 'BLOQUE 2 STO'
+            WHEN NOMBRE_ARCHIVO LIKE '%STO%' AND NOMBRE_ARCHIVO LIKE '%3%' THEN 'BLOQUE 3 STO'
+            ELSE NOMBRE_ARCHIVO
+        END AS BLOQUE,
+        ROW_NUMBER() OVER (PARTITION BY 
+            CASE 
+                WHEN NOMBRE_ARCHIVO LIKE '%MUNOZ%' AND NOMBRE_ARCHIVO LIKE '%1%' THEN 'BLOQUE 1 MUNOZ'
+                WHEN NOMBRE_ARCHIVO LIKE '%MUNOZ%' AND NOMBRE_ARCHIVO LIKE '%2%' THEN 'BLOQUE 2 MUNOZ'
+                WHEN NOMBRE_ARCHIVO LIKE '%MUNOZ%' AND NOMBRE_ARCHIVO LIKE '%3%' THEN 'BLOQUE 3 MUNOZ'
+                WHEN NOMBRE_ARCHIVO LIKE '%STO%' AND NOMBRE_ARCHIVO LIKE '%1%' THEN 'BLOQUE 1 STO'
+                WHEN NOMBRE_ARCHIVO LIKE '%STO%' AND NOMBRE_ARCHIVO LIKE '%2%' THEN 'BLOQUE 2 STO'
+                WHEN NOMBRE_ARCHIVO LIKE '%STO%' AND NOMBRE_ARCHIVO LIKE '%3%' THEN 'BLOQUE 3 STO'
+                ELSE NOMBRE_ARCHIVO
+            END
+            ORDER BY FECHA_RECEPCION) AS rn
+    FROM
+        CONTROL_MAIL
+)
+, bloque_1_munoz AS (
+    SELECT entryID, COUNT(*) AS count_1_munoz
+    FROM BLOQUE_1_MUNOZ
+    GROUP BY entryID
+)
+, bloque_2_munoz AS (
+    SELECT entryID, COUNT(*) AS count_2_munoz
+    FROM BLOQUE_2_MUNOZ
+    GROUP BY entryID
+)
+, bloque_3_munoz AS (
+    SELECT entryID, COUNT(*) AS count_3_munoz
+    FROM BLOQUE_3_MUNOZ
+    GROUP BY entryID
+)
+, bloque_1_sto AS (
+    SELECT entryID, COUNT(*) AS count_1_sto
+    FROM BLOQUE_1_STO
+    GROUP BY entryID
+)
+, bloque_2_sto AS (
+    SELECT entryID, COUNT(*) AS count_2_sto
+    FROM BLOQUE_2_STO
+    GROUP BY entryID
+)
+, bloque_3_sto AS (
+    SELECT entryID, COUNT(*) AS count_3_sto
+    FROM BLOQUE_3_STO
+    GROUP BY entryID
+)
+SELECT
+    COALESCE(a.rn, b.rn, c.rn, d.rn, e.rn, f.rn) AS rn,
+    a.NOMBRE_ARCHIVO AS MUNOZ_BLOQUE_1,
+    b.NOMBRE_ARCHIVO AS MUNOZ_BLOQUE_2,
+    c.NOMBRE_ARCHIVO AS MUNOZ_BLOQUE_3,
+    d.NOMBRE_ARCHIVO AS STO_BLOQUE_1,
+    e.NOMBRE_ARCHIVO AS STO_BLOQUE_2,
+    f.NOMBRE_ARCHIVO AS STO_BLOQUE_3,
+    COALESCE(bloq1.count_1_munoz, 0) AS count_1_munoz,
+    COALESCE(bloq2.count_2_munoz, 0) AS count_2_munoz,
+    COALESCE(bloq3.count_3_munoz, 0) AS count_3_munoz,
+    COALESCE(bloq4.count_1_sto, 0) AS count_1_sto,
+    COALESCE(bloq5.count_2_sto, 0) AS count_2_sto,
+    COALESCE(bloq6.count_3_sto, 0) AS count_3_sto
+FROM
+    (SELECT FECHA_RECEPCION, NOMBRE_ARCHIVO, entryID, rn FROM consulta_1 WHERE BLOQUE = 'BLOQUE 1 MUNOZ') a
+FULL OUTER JOIN
+    (SELECT FECHA_RECEPCION, NOMBRE_ARCHIVO, entryID, rn FROM consulta_1 WHERE BLOQUE = 'BLOQUE 2 MUNOZ') b
+ON a.rn = b.rn
+FULL OUTER JOIN
+    (SELECT FECHA_RECEPCION, NOMBRE_ARCHIVO, entryID, rn FROM consulta_1 WHERE BLOQUE = 'BLOQUE 3 MUNOZ') c
+ON a.rn = c.rn
+FULL OUTER JOIN
+    (SELECT FECHA_RECEPCION, NOMBRE_ARCHIVO, entryID, rn FROM consulta_1 WHERE BLOQUE = 'BLOQUE 1 STO') d
+ON a.rn = d.rn OR b.rn = d.rn OR c.rn = d.rn
+FULL OUTER JOIN
+    (SELECT FECHA_RECEPCION, NOMBRE_ARCHIVO, entryID, rn FROM consulta_1 WHERE BLOQUE = 'BLOQUE 2 STO') e
+ON a.rn = e.rn OR b.rn = e.rn OR c.rn = e.rn
+FULL OUTER JOIN
+    (SELECT FECHA_RECEPCION, NOMBRE_ARCHIVO, entryID, rn FROM consulta_1 WHERE BLOQUE = 'BLOQUE 3 STO') f
+ON a.rn = f.rn OR b.rn = f.rn OR c.rn = f.rn
+LEFT JOIN
+    bloque_1_munoz bloq1 ON a.entryID = bloq1.entryID
+LEFT JOIN
+    bloque_2_munoz bloq2 ON b.entryID = bloq2.entryID
+LEFT JOIN
+    bloque_3_munoz bloq3 ON c.entryID = bloq3.entryID
+LEFT JOIN
+    bloque_1_sto bloq4 ON d.entryID = bloq4.entryID
+LEFT JOIN
+    bloque_2_sto bloq5 ON e.entryID = bloq5.entryID
+LEFT JOIN
+    bloque_3_sto bloq6 ON f.entryID = bloq6.entryID
+ORDER BY
+    rn;
