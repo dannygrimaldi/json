@@ -1,0 +1,151 @@
+import os
+import time
+import pyodbc
+import csv
+import shutil
+import logging
+
+# Configuración de logging
+logging.basicConfig(filename='monitor.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+
+# Configuración de la base de datos
+server = 'tu_servidor'
+database = 'tu_base_de_datos'
+conn_str = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
+
+# Configuración de la carpeta a monitorear
+FOLDER1_TO_WATCH = 'ruta/a/la/carpeta1'
+FOLDER2_TO_WATCH = 'ruta/a/la/carpeta2'
+PROCESSED_FOLDER1 = os.path.join(FOLDER1_TO_WATCH, 'procesados')
+PROCESSED_FOLDER2 = os.path.join(FOLDER2_TO_WATCH, 'procesados')
+
+# Crear la carpeta de procesados si no existe
+if not os.path.exists(PROCESSED_FOLDER1):
+    os.makedirs(PROCESSED_FOLDER1)
+
+if not os.path.exists(PROCESSED_FOLDER2):
+    os.makedirs(PROCESSED_FOLDER2)
+
+NEW_FILE_QUERY = """
+SELECT columna1, columna2, columna3
+FROM nueva_tabla
+WHERE condicion1 AND condicion2
+ORDER BY columnaX;
+"""
+
+PROCESSED_FILE_QUERY = """
+SELECT columna1, columna2, columna3
+FROM tabla_procesada
+WHERE condicion1 AND condicion2
+ORDER BY columnaX;
+"""
+
+COMPARE_QUERY1 = """
+SELECT new_table.columna1, processed_table.columna1
+FROM nueva_tabla AS new_table
+INNER JOIN tabla_procesada AS processed_table
+ON new_table.id = processed_table.id
+WHERE new_table.condicion AND processed_table.condicion;
+"""
+COMPARE_QUERY2 = """
+SELECT new_table.columna1, processed_table.columna1
+FROM nueva_tabla AS new_table
+INNER JOIN tabla_procesada AS processed_table
+ON new_table.id = processed_table.id
+WHERE new_table.condicion AND processed_table.condicion;
+"""
+
+OUTPUT_CSV1 = 'resultados1.csv'
+OUTPUT_CSV2 = 'resultados2.csv'
+
+
+def process_csv(file_path, table_name):
+    try:
+        # Leer el archivo CSV
+        with open(file_path, newline='', encoding='utf-8') as csvfile:
+            csv_reader = csv.reader(csvfile)
+            columns = next(csv_reader)  # Obtener encabezados
+            rows = [row for row in csv_reader]
+
+        # Conectar a la base de datos
+        conexion = pyodbc.connect(conn_str)
+        cursor = conexion.cursor()
+
+        # Insertar los datos en la tabla SQL
+        for row in rows:
+            cursor.execute(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({', '.join(['?' for _ in row])})", row)
+        conexion.commit()
+
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        conexion.close()
+
+        logging.info(f'Procesado: {file_path}, Datos insertados en la tabla: {table_name}')
+    except Exception as e:
+        logging.error(f"Error procesando {file_path}: {e}")
+
+def get_latest_files(folder, num_files_to_keep=5):
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+    files.sort(key=os.path.getmtime, reverse=True)  # Ordenar por fecha de modificación descendente
+    files_to_delete = files[num_files_to_keep:]  # Obtener archivos a eliminar
+    return files_to_delete
+
+def execute_query(query, output_file):
+    try:
+        # Conectar a la base de datos
+        conexion = pyodbc.connect(conn_str)
+        cursor = conexion.cursor()
+
+        # Ejecutar la consulta
+        cursor.execute(query)
+        resultados = cursor.fetchall()
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Escribir los resultados en el archivo CSV
+        with open(output_file, mode='w', newline='', encoding='utf-8') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerow(column_names)
+            for fila in resultados:
+                csv_writer.writerow(fila)
+
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        conexion.close()
+
+        logging.info(f'Resultado de la consulta guardado en: {output_file}')
+    except Exception as e:
+        logging.error(f"Error ejecutando la consulta: {e}")
+
+def handle_folder(folder, processed_folder, query, output_file, table_name, tabla_procesados):
+    archivos = os.listdir(folder)
+    for archivo in archivos:
+        archivo_completo = os.path.join(folder, archivo)
+        if archivo.endswith('.csv') and os.path.isfile(archivo_completo):
+            # Eliminar archivos más antiguos en la carpeta de procesados
+            files_to_delete = get_latest_files(processed_folder)
+            for file_to_delete in files_to_delete:
+                os.remove(file_to_delete)
+
+            # Procesar el archivo nuevo y moverlo a la carpeta de procesados
+            process_csv(archivo_completo, table_name)
+            shutil.move(archivo_completo, os.path.join(processed_folder, os.path.basename(archivo_completo)))
+
+            # Procesar el último archivo procesado
+            latest_file = get_latest_file(processed_folder)
+            if latest_file:
+                process_csv(latest_file, tabla_procesados)
+
+            # Ejecutar la consulta de comparación y guardar el resultado en un CSV
+            execute_query(query, output_file)
+
+if __name__ == '__main__':
+    try:
+        while True:
+            handle_folder(FOLDER1_TO_WATCH, PROCESSED_FOLDER1, COMPARE_QUERY1, OUTPUT_CSV1, 'new_tabla1', 'OLD_tabla1')
+            handle_folder(FOLDER2_TO_WATCH, PROCESSED_FOLDER2, COMPARE_QUERY2, OUTPUT_CSV2, 'new_tabla2', 'OLD_tabla1')
+            # Esperar antes de volver a verificar las carpetas
+            time.sleep(5)
+    except KeyboardInterrupt:
+        logging.info("Proceso interrumpido manualmente.")
+    except Exception as e:
+        logging.error(f"Error general: {e}")
