@@ -1,0 +1,17 @@
+import win32com.client
+
+# Crear una instancia de Outlook
+outlook = win32com.client.Dispatch("Outlook.Application")
+
+# Crear un nuevo correo electrónico
+mail = outlook.CreateItem(0)  # 0 significa MailItem (mensaje de correo)
+
+# Configurar el destinatario, asunto y cuerpo del correo electrónico
+mail.To = "destinatario@dominio.com"
+mail.Subject = "Asunto del correo"
+mail.Body = "Hola,\n\nEste es un ejemplo de correo electrónico enviado desde Python usando Outlook."
+
+# Para enviar el correo electrónico
+mail.Send()
+
+print("Correo electrónico enviado correctamente a", mail.To)
