@@ -15,3 +15,36 @@ mail.Body = "Hola,\n\nEste es un ejemplo de correo electrónico enviado desde Py
 mail.Send()
 
 print("Correo electrónico enviado correctamente a", mail.To)
+
+			…
+
+from pyOutlook import OutlookAccount, Recipient, Message, Sensitivity
+
+def send_email_with_sensitivity(to_email, subject, body, sensitivity):
+    try:
+        # Crear un objeto Message
+        msg = Message()
+
+        # Configurar el destinatario, asunto y cuerpo del correo electrónico
+        msg.recipients.append(Recipient(to_email))
+        msg.subject = subject
+        msg.body = body
+
+        # Establecer la sensibilidad del correo electrónico
+        # sensitivity puede ser Sensitivity.NORMAL, Sensitivity.PERSONAL, Sensitivity.PRIVATE o Sensitivity.CONFIDENTIAL
+        msg.sensitivity = sensitivity
+
+        # Enviar correo electrónico
+        OutlookAccount().send_message(msg)
+
+        print(f"Correo electrónico enviado correctamente a {to_email} con sensibilidad '{sensitivity}'.")
+    except Exception as e:
+        print("Error al enviar el correo electrónico:", str(e))
+
+# Ejemplo de uso
+to_email = "destinatario@dominio.com"
+subject = "Asunto del correo"
+body = "Hola,\n\nEste es un ejemplo de correo electrónico enviado desde Python usando pyOutlook con sensibilidad."
+sensitivity = Sensitivity.CONFIDENTIAL  # Sensibilidad confidencial
+
+send_email_with_sensitivity(to_email, subject, body, sensitivity)
