@@ -48,3 +48,19 @@ body = "Hola,\n\nEste es un ejemplo de correo electrónico enviado desde Python 
 sensitivity = Sensitivity.CONFIDENTIAL  # Sensibilidad confidencial
 
 send_email_with_sensitivity(to_email, subject, body, sensitivity)
+	   
+
+Gracias! 
+1. Me interesó porque me gusta ver las áreas de mejoras para los procesos que ya tenemos en el banco, y el hecho de poder participar en el análisis e implementación de la automatización de los mismos para eficientar los procesos es algo que me interesa laboralmente y personalmente.
+2. Concluida la preparatoria como técnico en programación.
+3. Tengo 27 años cumplidos
+4. El nivel de inglés que manejo es básico.
+5. Actualmente llevo laborando 5 años y llevo 11 meses en el área actual.
+6. He participado en procesos de automatización con blueprism y tengo una certificación en ello, pero, principalmente me desempeño en la creación de bots para chat del banco.
+7. En cuanto a mi desarrollo dentro del banco puedo decir que me he mantenido en constante movimiento por distintas áreas lo que también influye en mi aprendizaje y experiencia, pasé por PB, PB revenue, Altas ventas, avance y finalmente robotics, participando en capacitaciones a chicos de chat y tarjetas de crédito, lo que me da una idea de lo que es la atención al cliente y los procesos que tenemos para la resolución sus solicitudes así como el funcionamiento de los aplicativos institucionales.
+8. Los aplicativos que conozco y que he usado en el banco son: Ecare, leap, workList, tubería un house, sfe(los generales para atención a clientes), para la autorización, Liveperson y blue prism, ademas de la paquetería de office.
+9. En cuanto a la experiencia, considero que el conocimiento de los procesos me ayuda a entender más fácilmente el área de oportunidad para mejora y en cuanto a habilidades el conocimiento de los lenguajes de programación como Javascript y python se pueden aplicar para el desarrollo también de aplicativos nuevos.
+10. La fecha de entrevista fue el día 8 de julio.
+11. Si me han mencionado de las actividades a desempeñar dentro del área
+12. Perseverancia, constancia y adaptación al cambio.
+13. El logro que tengo dentro de las actividades que desempeño es la implementación de una nueva herramienta llamada "desambigüación" dentro de liveperson la cual ayudará a captar un mayor número de chats y le da la oportunidad al cliente de revisar si eso es lo que está buscando, actualmente se lleva implementado un 15%
