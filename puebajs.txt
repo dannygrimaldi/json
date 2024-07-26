@@ -1,0 +1,69 @@
+<%@ Language=VBScript %>
+<%
+' Declarar variables
+Dim texto, partes, regex, matches, match, output, i
+
+' La cadena que quieres dividir
+texto = "12-05-2021 23-08-2022 01-12-2023"
+
+' Dividir la cadena por espacios
+partes = Split(texto, " ")
+
+' Crear el objeto RegExp
+Set regex = New RegExp
+
+' Definir la expresión regular para encontrar fechas
+regex.Pattern = "(\d{2})-(\d{2})-(\d{4})"
+regex.Global = True  ' Buscar todas las coincidencias
+
+' Inicializar el string para construir la tabla HTML
+output = "<html><head><title>Resultados de RegEx</title></head><body>"
+output = output & "<h2>Resultados de RegEx</h2>"
+output = output & "<table border='1' cellpadding='5' cellspacing='0' id='resultTable'>"
+output = output & "<tr><th>Texto</th><th>Fecha Completa</th><th>Día</th><th>Mes</th><th>Año</th></tr>"
+
+' Recorrer cada parte del array
+For i = 0 To UBound(partes)
+    ' Ejecutar la búsqueda en la parte actual
+    Set matches = regex.Execute(partes(i))
+    
+    ' Procesar las coincidencias encontradas en esta parte
+    For Each match In matches
+        output = output & "<tr>"
+        output = output & "<td>" & partes(i) & "</td>"
+        output = output & "<td>" & match.Value & "</td>"
+        output = output & "<td>" & match.SubMatches(0) & "</td>"
+        output = output & "<td>" & match.SubMatches(1) & "</td>"
+        output = output & "<td>" & match.SubMatches(2) & "</td>"
+        output = output & "</tr>"
+    Next
+Next
+
+' Cerrar la tabla HTML
+output = output & "</table>"
+
+' Incluir el script JavaScript
+output = output & "
+<script type='text/javascript'>
+function highlightCells() {
+    var table = document.getElementById('resultTable');
+    var cells = table.getElementsByTagName('td');
+    for (var i = 0; i < cells.length; i++) {
+        cells[i].onclick = function() {
+            this.style.backgroundColor = 'yellow';
+        }
+    }
+}
+window.onload = highlightCells;
+</script>"
+
+output = output & "</body></html>"
+
+' Mostrar el resultado en la página web
+Response.Write output
+
+' Liberar los objetos
+Set match = Nothing
+Set matches = Nothing
+Set regex = Nothing
+%>
