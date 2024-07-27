@@ -1,0 +1,17 @@
+<%
+Response.Write "<html><head><title>Prueba con jQuery</title>"
+Response.Write "<!-- Incluir jQuery desde una CDN -->"
+Response.Write "<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>"
+Response.Write "</head><body>"
+Response.Write "<h2>Prueba de jQuery en ASP Clásico</h2>"
+Response.Write "<button id='testButton'>Haz clic aquí</button>"
+Response.Write "
+<script type='text/javascript'>
+$(document).ready(function() {
+    $('#testButton').click(function() {
+        alert('¡jQuery está funcionando!');
+    });
+});
+</script>"
+Response.Write "</body></html>"
+%>
