@@ -1,0 +1,30 @@
+Claro, aquí te dejo el equivalente en ASP Clásico:
+
+Dim palabras_clave, string_original, subcadenas, inicio, error
+palabras_clave = Array("CLIENTE", "CIS", "SEGMENTO")
+string_original = "SFEMov"
+subcadenas = Array()
+inicio = -1
+error = False
+
+For Each palabra In palabras_clave
+    If Not error Then
+        indice = InStr(string_original, palabra)
+        If indice <> -1 Then
+            subcadena = Mid(string_original, inicio + 1, indice - inicio - 1)
+            subcadena = Trim(subcadena)
+            If subcadena <> "" Then
+                ReDim Preserve subcadenas(UBound(subcadenas) + 1)
+                subcadenas(UBound(subcadenas)) = subcadena
+            End If
+            inicio = indice + Len(palabra)
+        Else
+            subcadena = Mid(string_original, inicio + 1)
+            ReDim Preserve subcadenas(UBound(subcadenas) + 1)
+            subcadenas(UBound(subcadenas)) = subcadena
+            error = True
+        End If
+    Else
+        error = False
+    End If
+Next
