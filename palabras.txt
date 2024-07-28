@@ -1,4 +1,3 @@
-Claro, aquí te dejo el equivalente en ASP Clásico:
 
 Dim palabras_clave, string_original, subcadenas, inicio, error
 palabras_clave = Array("CLIENTE", "CIS", "SEGMENTO")
