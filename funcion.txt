@@ -1,0 +1,42 @@
+Function ReemplazarMeses(fechaOriginal)
+    Dim meses(12)
+    meses(0) = "ene|jan"
+    meses(1) = "feb|feb"
+    meses(2) = "mar|mar"
+    meses(3) = "abr|apr"
+    meses(4) = "may|may"
+    meses(5) = "jun|jun"
+    meses(6) = "jul|jul"
+    meses(7) = "ago|aug"
+    meses(8) = "sep|sep"
+    meses(9) = "oct|oct"
+    meses(10) = "nov|nov"
+    meses(11) = "dic|dec"
+    For i = 0 To 11
+        fechaOriginal = Replace(fechaOriginal, Split(meses(i), "|")(0), Split(meses(i), "|")(1))
+    Next
+    ReemplazarMeses = fechaOriginal
+End Function
+
+fechaOriginal = "ago 30 2022"
+fecha = CDate(ReemplazarMeses(fechaOriginal))
+```En ASP Clásico, es recomendable declarar las funciones antes de utilizarlas. Esto se debe a que el intérprete de ASP Clásico procesa el código de arriba hacia abajo, por lo que si intentas utilizar una función antes de declararla, el intérprete no la reconocerá y generarás un error.
+
+Por lo tanto, es buena práctica declarar todas las funciones al principio del archivo ASP, antes de cualquier código que las utilice. De esta manera, cuando el intérprete llegue al código que utiliza la función, ya habrá sido declarada y no habrá problemas.
+
+Aquí te muestro un ejemplo de cómo debería estructurarse el código:
+```
+<%
+' Declarar funciones
+Function ReemplazarMeses(fechaOriginal)
+    ' Código de la función
+End Function
+
+' Código principal
+fechaOriginal = "ago 30 2022"
+fecha = CDate(ReemplazarMeses(fechaOriginal))
+fechaFormateada = FormatDateTime(fecha, 2)
+%>
+```
+Recuerda que esto es solo una buena práctica, y no es estrictamente necesario declarar las funciones antes de utilizarlas. Sin embargo, hacerlo así puede ayudar a evitar errores y hacer que el código sea más fácil de entender y mantener.
+Espero que esto te ayude. ¡Si tienes alguna otra pregunta, no dudes en preguntar!
