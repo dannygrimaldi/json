@@ -1,0 +1,43 @@
+#pip install pandas openpyxl sqlalchemy pyodbc
+
+import pandas as pd
+from sqlalchemy import create_engine
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill
+
+# Parámetros de conexión
+server = 'tu_servidor'
+database = 'tu_base_de_datos'
+username = 'tu_usuario'
+password = 'tu_contraseña'
+
+# Crear la cadena de conexión
+connection_string = f'mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server'
+
+# Conexión a la base de datos
+engine = create_engine(connection_string)
+
+# Realizar la consulta SQL
+query = "SELECT * FROM tu_tabla"
+df = pd.read_sql(query, engine)
+
+# Exportar a Excel sin el formato
+excel_path = 'resultado.xlsx'
+df.to_excel(excel_path, index=False)
+
+# Cargar el archivo de Excel para aplicar los formatos
+wb = load_workbook(excel_path)
+ws = wb.active
+
+# Definir los colores para las cabeceras
+colores = ['FF0000', '00FF00', '0000FF', 'FFFF00', 'FF00FF']  # Colores en formato RGB hex
+
+# Aplicar los colores a las cabeceras
+for i, cell in enumerate(ws[1]):
+    color = colores[i % len(colores)]
+    cell.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+
+# Guardar el archivo de Excel con los formatos
+wb.save(excel_path)
+
+print("Archivo Excel creado y formateado exitosamente.")
