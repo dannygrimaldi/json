@@ -1,0 +1,36 @@
+import time
+import datetime
+import logging
+import os
+
+# Configuración del registro
+log_directory = "ruta/a/tu/carpeta/de/logs"  # Especifica tu carpeta de logs aquí
+os.makedirs(log_directory, exist_ok=True)  # Crea la carpeta si no existe
+log_path = os.path.join(log_directory, "hourly_task.log")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_path),
+        logging.StreamHandler()
+    ]
+)
+
+def my_task():
+    # Aquí pones el código que quieres ejecutar cada hora en punto.
+    logging.info("Ejecutando tarea...")
+
+def sleep_until_next_hour():
+    now = datetime.datetime.now()
+    next_hour = (now.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1))
+    sleep_time = (next_hour - now).total_seconds()
+    logging.info(f"Dormir por {sleep_time:.2f} segundos hasta las {next_hour}")
+    time.sleep(sleep_time)
+
+try:
+    while True:
+        my_task()  # Ejecuta tu tarea
+        sleep_until_next_hour()  # Espera hasta la próxima hora en punto
+except KeyboardInterrupt:
+    logging.info("Ejecución interrumpida por el usuario.")
