@@ -1,0 +1,58 @@
+import pandas as pd
+import pyodbc
+import os
+
+# Parámetros de conexión a SQL Server
+server = 'TU_SERVIDOR'
+database = 'TU_BASE_DE_DATOS'
+username = 'TU_USUARIO'
+password = 'TU_CONTRASEÑA'
+connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+
+# Conectar a la base de datos
+conn = pyodbc.connect(connection_string)
+cursor = conn.cursor()
+
+# Carpeta que contiene los archivos Excel
+folder_path = 'ruta/a/tu/carpeta/de/archivos'
+
+# Nombre de la tabla en la base de datos
+table_name = 'NombreDeTuTabla'
+
+# Crear la tabla (si no existe)
+# Aquí debes ajustar los tipos de datos según las columnas de tus archivos Excel
+create_table_query = f'''
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
+CREATE TABLE {table_name} (
+    Column1 VARCHAR(255),
+    Column2 INT,
+    Column3 FLOAT,
+    Column4 DATETIME
+    -- Agrega más columnas según tus archivos Excel
+)
+'''
+cursor.execute(create_table_query)
+conn.commit()
+
+# Función para insertar datos en la tabla
+def insert_data(df, table_name, cursor, conn):
+    columns = df.columns.tolist()
+    columns_str = ', '.join(columns)
+    placeholders = ', '.join(['?'] * len(columns))
+    
+    insert_query = f'INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})'
+
+    for index, row in df.iterrows():
+        cursor.execute(insert_query, tuple(row))
+    conn.commit()
+
+# Leer cada archivo Excel en la carpeta y insertar los datos en la base de datos
+for file_name in os.listdir(folder_path):
+    if file_name.endswith('.xlsx'):
+        file_path = os.path.join(folder_path, file_name)
+        df = pd.read_excel(file_path)
+        insert_data(df, table_name, cursor, conn)
+
+# Cerrar la conexión a la base de datos
+cursor.close()
+conn.close()
